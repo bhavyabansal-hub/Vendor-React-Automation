@@ -1,4 +1,4 @@
-# Vendor React Automation
+# Vendor React Automations
 
 A Python-based automation framework for testing and managing vendor-related React applications.
 
