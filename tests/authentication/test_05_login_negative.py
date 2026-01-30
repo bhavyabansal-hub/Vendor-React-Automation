@@ -1,21 +1,20 @@
 """
 ❌ LOGIN NEGATIVE TEST CASES (Form Validation)
 
-Simple test data objects - 8 validation test cases organized by field
-Each case tests ONE validation scenario
+8 validation test cases for login form
+Tests invalid credentials
 
-Expected: Form stays on login page (validation rejects invalid credentials)
-
-Easy to add new tests:
-- Add new dict to the appropriate CASES list
-- Pytest will run it automatically with @pytest.mark.parametrize
+✅ OPTIMIZATION:
+- Opens page ONCE at start
+- Tests ALL 8 cases on same page
+- Refreshes between cases (not reopens browser)
+- NO browser reopening = FAST
 """
-import pytest
 from src.pages.authentication.login_page import LoginPage
 
 
 # ============================================================================
-# TEST DATA - 8 LOGIN VALIDATION TEST CASES (Dictionary Format)
+# TEST DATA - 8 LOGIN VALIDATION TEST CASES
 # ============================================================================
 
 # Email validation (3 cases)
@@ -34,50 +33,71 @@ PASSWORD_CASES = [
 
 # Both fields invalid (2 cases)
 BOTH_INVALID_CASES = [
-    {"email": "", "password": "", "description": "Empty"},
-    {"email": "invalidemail", "password": "short", "description": "Invalid"},
+    {"email": "", "password": "", "description": "Both fields empty"},
+    {"email": "invalidemail", "password": "short", "description": "Both fields invalid"},
 ]
+
+# Combine all cases in order
+ALL_TEST_CASES = []
+for case in EMAIL_CASES:
+    ALL_TEST_CASES.append(("email", case))
+for case in PASSWORD_CASES:
+    ALL_TEST_CASES.append(("password", case))
+for case in BOTH_INVALID_CASES:
+    ALL_TEST_CASES.append(("both", case))
 
 
 # ============================================================================
 # TEST IMPLEMENTATION
 # ============================================================================
 class TestLoginNegative:
-    """Test: Form validation rejects invalid login data"""
+    """Login form validation - 8 test cases on ONE page
     
-    # Email Tests
-    @pytest.mark.parametrize("email_case", EMAIL_CASES)
-    def test_05a_email_validation(self, sb, email_case):
-        """❌ Email validation - test each case"""
-        login = LoginPage(sb)
-        login.open()
-        login.login(email_case["email"], email_case["password"])
-        
-        sb.wait(1)
-        assert "login" in sb.get_current_url(), \
-            f"Email validation failed for: {email_case['description']}"
+    ✅ SINGLE TEST METHOD
+    ✅ Opens page ONCE
+    ✅ Tests all 8 cases with refresh between each
+    ✅ No browser reopening = FAST
+    """
     
-    # Password Tests
-    @pytest.mark.parametrize("password_case", PASSWORD_CASES)
-    def test_05b_password_validation(self, sb, password_case):
-        """❌ Password validation - test each case"""
-        login = LoginPage(sb)
-        login.open()
-        login.login(password_case["email"], password_case["password"])
+    def test_05_all_login_validations(self, sb):
+        """❌ Test all 8 login validation cases on same page with refresh between
         
-        sb.wait(1)
-        assert "login" in sb.get_current_url(), \
-            f"Password validation failed for: {password_case['description']}"
-    
-    # Both Fields Invalid Tests
-    @pytest.mark.parametrize("both_case", BOTH_INVALID_CASES)
-    def test_05c_both_fields_validation(self, sb, both_case):
-        """❌ Multiple fields validation - test each case"""
+        Note: Browser is already at login page from previous test (test_03)
+        If not, navigate there first. Then just refresh between test cases.
+        """
         login = LoginPage(sb)
-        login.open()
-        login.login(both_case["email"], both_case["password"])
         
-        sb.wait(1)
-        assert "login" in sb.get_current_url(), \
-            f"Both fields validation failed for: {both_case['description']}"
+        # Check if we're already on login page from previous test
+        current_url = sb.get_current_url()
+        if "login" not in current_url:
+            login.open()  # Open only if not already on login page
+        else:
+            print("  (Browser already at login page from previous test)")
+        
+        passed = 0
+        failed = 0
+        
+        for i, (field_name, case) in enumerate(ALL_TEST_CASES):
+            # ✅ Refresh for next case (except first if we just opened)
+            if i > 0 or "login" not in sb.get_current_url():
+                login.refresh_form()
+            
+            # Login with invalid data
+            login.login(case["email"], case["password"])
+            
+            # Verify form stayed on login (validation rejected)
+            current_url = sb.get_current_url()
+            if "login" in current_url:
+                passed += 1
+                print(f"  ✓ Case {i+1:2d}/8: {field_name.upper():8s} - {case['description']}")
+            else:
+                failed += 1
+                print(f"  ✗ Case {i+1:2d}/8: {field_name.upper():8s} - {case['description']}")
+                print(f"    ERROR: Expected login page, got {current_url}")
+                assert False, f"Form should stay on login, but got {current_url}"
+        
+        print(f"\n✅ SUCCESS: All 8 validation cases passed!")
+        print(f"   Passed: {passed}/8 | Failed: {failed}/8")
+        print(f"   (No browser reopening - single page load with refreshes)")
+
 

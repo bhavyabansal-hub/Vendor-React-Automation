@@ -1,4 +1,13 @@
+import os
+from dotenv import load_dotenv
 from src.core.base_page import BasePage
+
+# Load .env file
+load_dotenv()
+
+# Read BASE_URL directly from .env
+BASE_URL = os.getenv("BASE_URL", "https://dev.v.shipgl.in")
+
 
 class MobileVerificationPage(BasePage):
     """Mobile verification page at https://dev.v.shipgl.in/verify-mobile
@@ -28,14 +37,11 @@ class MobileVerificationPage(BasePage):
         
         This completes the flow: signup → mobile verification → DB update → logout → login
         """
-        from configs.settings import BASE_URL
         
-        # Step 1: Navigate to logout URL to logout
+        # Step 1: Navigate to logout URL - server handles logout
         logout_url = BASE_URL + "/logout"
         self.sb.open(logout_url)
-        self.sb.wait(2)  # Wait for logout to process
         
-        # Step 2: Navigate to login page
+        # Step 2: Navigate to login page (page loads automatically)
         login_url = BASE_URL + "/auth/login"
         self.sb.open(login_url)
-        self.sb.wait(2)  # Wait for login page to load

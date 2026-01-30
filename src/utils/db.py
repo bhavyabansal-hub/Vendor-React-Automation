@@ -1,5 +1,19 @@
+import os
 import mysql.connector
-from configs.settings import DB_CONFIG
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
+# Read DB configuration directly from .env - NO settings.py layer
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "database": os.getenv("DB_DATABASE"),
+    "port": int(os.getenv("DB_PORT", 3306)),
+    "ssl_disabled": os.getenv("DB_SSL_DISABLED", "True").lower() == "true",
+}
 
 def get_db_connection():
     """Create and return database connection"""

@@ -1,40 +1,52 @@
 """
 Pytest configuration for authentication tests
 Handles browser session management and test setup/teardown
+Supports LOCAL (UI mode) and CI/CD (headless mode) execution
+
+Correct SeleniumBase usage:
+  - Headless controlled via --headless flag (pytest CLI)
+  - Environment variable (HEADLESS) adds --headless automatically
+  - No manual webdriver configuration needed
 """
 import pytest
-from seleniumbase import BaseCase
+import os
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
+# Read configuration directly from .env
+BASE_URL = os.getenv("BASE_URL", "https://dev.v.shipgl.in")
+BROWSER = os.getenv("BROWSER", "chrome")
+HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
 
 
-@pytest.fixture(scope="session")
-def sb():
+def pytest_configure(config):
     """
-    SeleniumBase browser fixture - SESSION SCOPE
+    Configure pytest with SeleniumBase options based on HEADLESS env var.
+    This runs before tests start.
     
-    ✅ Browser opens ONCE at session start
-    ✅ Browser stays open for ALL tests
-    ✅ Browser refreshes between tests (no close/open)
-    ✅ All tests share same browser instance
-    
-    This ensures:
-    - Fast test execution (no browser restart overhead)
-    - Stable browser state across tests
-    - Simple page refresh instead of close/open
+    If HEADLESS=true in .env -> automatically adds --headless flag
+    If HEADLESS=false in .env -> runs with normal browser (UI mode)
     """
-    base = BaseCase()
-    base.setUp()
-    
-    # Browser is now open
-    print(f"\n{'='*70}")
-    print(f"✅ BROWSER OPENED - SESSION SCOPE (ONE TIME)")
-    print(f"   Will refresh pages instead of close/open")
-    print(f"{'='*70}\n")
-    
-    yield base
-    
-    # Cleanup - browser closes
-    base.tearDown()
-    print(f"\n{'='*70}")
-    print(f"✅ BROWSER CLOSED - SESSION COMPLETE")
-    print(f"{'='*70}\n")
+    # Check if --headless is already set via CLI
+    if not any(arg.startswith('--headless') for arg in config.invocation_params.args):
+        # Add headless flag if HEADLESS=true in .env
+        if HEADLESS:
+            # Use pytest's internal API to set option
+            config.option.headless = True
+            print(f"\n{'='*70}")
+            print(f"🤖 CI/CD MODE - HEADLESS BROWSER")
+            print(f"   Browser: {BROWSER} (headless)")
+            print(f"   Base URL: {BASE_URL}")
+            print(f"   No GUI - Running in background")
+            print(f"{'='*70}\n")
+        else:
+            config.option.headless = False
+            print(f"\n{'='*70}")
+            print(f"👀 LOCAL MODE - BROWSER VISIBLE")
+            print(f"   Browser: {BROWSER}")
+            print(f"   Base URL: {BASE_URL}")
+            print(f"   You WILL see the browser window")
+            print(f"{'='*70}\n")
 

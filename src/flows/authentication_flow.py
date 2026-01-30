@@ -1,8 +1,15 @@
+import os
+from dotenv import load_dotenv
 from src.pages.authentication.login_page import LoginPage
 from src.pages.authentication.mobile_verification_page import MobileVerificationPage
 from src.pages.authentication.signup_page import SignupPage
 from src.pages.authentication.merchant_agreement_modal import MerchantAgreementModal
-from configs.settings import BASE_URL
+
+# Load .env file
+load_dotenv()
+
+# Read BASE_URL directly from .env - NO settings.py layer
+BASE_URL = os.getenv("BASE_URL", "https://dev.v.shipgl.in")
 
 
 class AuthenticationFlow:
@@ -99,9 +106,9 @@ class AuthenticationFlow:
         Flow:
         - After accepting merchant agreement, user should be redirected to orders
         - Expected URL: https://dev.v.shipgl.in/orders/all
-        - Wait 5 seconds for page to fully load
         """
-        self.sb.wait(5)  # Wait for orders page to load
+        # Wait for orders page element to confirm page load
+        self.sb.wait_for_element("a[href*='order']", timeout=10)
         current_url = self.sb.get_current_url()
         assert "orders" in current_url, f"Expected orders page, but got {current_url}"
         print(f"✅ Step 6 Complete: Verified orders page loaded - {current_url}")

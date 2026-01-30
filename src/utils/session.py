@@ -1,7 +1,14 @@
+import os
 import time
 import random
-from configs.settings import HARD_PASSWORD
+from dotenv import load_dotenv
 from src.utils.db import user_exists
+
+# Load .env file
+load_dotenv()
+
+# Read password directly from .env - NO settings.py layer
+HARD_PASSWORD = os.getenv("HARD_PASSWORD", "Test@1234")
 
 # Global session storage for E2E test only
 _test_session = {

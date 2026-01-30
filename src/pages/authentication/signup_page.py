@@ -1,6 +1,13 @@
+import os
+from dotenv import load_dotenv
 from src.core.base_page import BasePage
 from src.locators.authentication_locators import SignupLocators
-from configs.settings import BASE_URL
+
+# Load .env file
+load_dotenv()
+
+# Read BASE_URL directly from .env
+BASE_URL = os.getenv("BASE_URL", "https://dev.v.shipgl.in")
 
 class SignupPage(BasePage):
     def open(self):
@@ -8,6 +15,16 @@ class SignupPage(BasePage):
         self.sb.open(f"{BASE_URL}/auth/signup")
         # Wait for form to load
         self.sb.wait_for_element(SignupLocators.FIRST_NAME, timeout=15)
+
+    def refresh_form(self):
+        """Refresh page to reset form for next test case (same page, multiple tests)
+        
+        Use this when testing multiple validation cases on the same page.
+        Example: Test 5 different invalid emails without reopening browser.
+        """
+        self.sb.refresh()
+        # Wait for form to load after refresh
+        self.sb.wait_for_element(SignupLocators.FIRST_NAME, timeout=10)
 
     def submit(self, user):
         """Fill signup form and submit - redirects to mobile verification page"""

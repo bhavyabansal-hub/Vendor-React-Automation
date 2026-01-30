@@ -7,10 +7,8 @@ class MerchantAgreementModal(BasePage):
         return self.sb.is_element_present(MerchantAgreementLocators.DIALOG)
     
     def accept(self):
-        """Accept merchant agreement modal and wait for redirect to orders page"""
+        """Accept merchant agreement modal and redirect to orders page"""
         self.sb.wait_for_element(MerchantAgreementLocators.DIALOG, timeout=10)
-        self.sb.wait(1)
         self.sb.click(MerchantAgreementLocators.MODAL_ACCEPT)
-        # Wait for modal to disappear and orders page to load
+        # Wait for modal to disappear (page auto-redirects)
         self.sb.wait_for_element_not_visible(MerchantAgreementLocators.DIALOG, timeout=15)
-        self.sb.wait(2)  # Extra wait for page redirect

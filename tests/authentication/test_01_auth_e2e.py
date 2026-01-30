@@ -112,9 +112,6 @@ class TestAuthenticationEToE:
             print(f"STEP 9: PREPARE FOR NEXT TESTS")
             print(f"{'='*70}")
             sb.open("https://dev.v.shipgl.in/auth/signup")
-            sb.wait(2)
-            sb.refresh()
-            sb.wait(2)
             print(f"✅ Step 9 Complete: On signup page, ready for next tests")
             
             print(f"\n{'='*70}")
