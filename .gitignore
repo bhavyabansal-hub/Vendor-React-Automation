@@ -47,7 +47,12 @@ htmlcov/
 .tox/
 .hypothesis/
 test_artifacts/
-reports/
+
+# Report history - keep only latest, ignore old reports
+reports/html/test_report_*.html
+reports/json/
+reports/screenshots/
+!reports/dashboard.html
 *.log
 
 # =============================================================================

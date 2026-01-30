@@ -11,6 +11,8 @@ Correct SeleniumBase usage:
 import pytest
 import os
 from dotenv import load_dotenv
+from src.utils.test_reporter import TestReporter
+from src.utils.reports_dashboard import ReportsDashboard
 
 # Load .env file
 load_dotenv()
@@ -19,6 +21,11 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL", "https://dev.v.shipgl.in")
 BROWSER = os.getenv("BROWSER", "chrome")
 HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
+
+# Report generation
+test_results = []
+reporter = TestReporter()
+dashboard = ReportsDashboard()
 
 
 def pytest_configure(config):
@@ -49,4 +56,33 @@ def pytest_configure(config):
             print(f"   Base URL: {BASE_URL}")
             print(f"   You WILL see the browser window")
             print(f"{'='*70}\n")
+
+
+def pytest_runtest_makereport(item, call):
+    """Hook to capture test results for report generation"""
+    if call.when == "call":
+        test_name = item.name
+        duration = call.duration
+        
+        if call.excinfo:
+            status = "FAILED"
+            error = str(call.excinfo.value)[:200]
+        else:
+            status = "PASSED"
+            error = None
+        
+        test_results.append({
+            'name': test_name,
+            'status': status,
+            'duration': duration,
+            'error': error
+        })
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Generate report and dashboard at end of test session"""
+    if test_results:
+        reporter.generate_report(test_results)
+    dashboard.generate_dashboard()
+
 
