@@ -182,8 +182,8 @@ class ReportsDashboard:
 </html>
 """
         
-        self.dashboard_path.write_text(html)
-        print(f"✅ Dashboard generated: {self.dashboard_path}")
+        self.dashboard_path.write_text(html, encoding='utf-8')
+        print(f"[SUCCESS] Dashboard generated: {self.dashboard_path}")
         return str(self.dashboard_path)
     
     def _format_timestamp(self, timestamp_str):
