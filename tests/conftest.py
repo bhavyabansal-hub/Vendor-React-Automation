@@ -45,7 +45,7 @@ def pytest_configure(config):
             # Use pytest's internal API to set option
             config.option.headless = True
             print(f"\n{'='*70}")
-            print(f"🤖 CI/CD MODE - HEADLESS BROWSER")
+            print(f"[CI/CD MODE] - HEADLESS BROWSER")
             print(f"   Browser: {BROWSER} (headless)")
             print(f"   Base URL: {BASE_URL}")
             print(f"   No GUI - Running in background")
@@ -53,7 +53,7 @@ def pytest_configure(config):
         else:
             config.option.headless = False
             print(f"\n{'='*70}")
-            print(f"👀 LOCAL MODE - BROWSER VISIBLE")
+            print(f"[LOCAL MODE] - BROWSER VISIBLE")
             print(f"   Browser: {BROWSER}")
             print(f"   Base URL: {BASE_URL}")
             print(f"   You WILL see the browser window")

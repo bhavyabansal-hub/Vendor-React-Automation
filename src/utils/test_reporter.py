@@ -37,8 +37,8 @@ class TestReporter:
         html = self._generate_html(test_results, passed, failed, pass_rate, total)
         
         # Write file
-        filepath.write_text(html)
-        print(f"\n✅ Report generated: {filepath}")
+        filepath.write_text(html, encoding='utf-8')
+        print(f"\n[SUCCESS] Report generated: {filepath}")
         return str(filepath)
     
     def _generate_html(self, tests, passed, failed, pass_rate, total):
@@ -47,7 +47,7 @@ class TestReporter:
         test_rows = ""
         for test in tests:
             status_color = "green" if test['status'] == 'PASSED' else "red"
-            status_icon = "✅" if test['status'] == 'PASSED' else "❌"
+            status_icon = "[PASS]" if test['status'] == 'PASSED' else "[FAIL]"
             
             error_row = ""
             if test.get('error'):

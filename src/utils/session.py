@@ -76,7 +76,7 @@ def create_test_session():
     if _test_session["user"] is None:
         _test_session["user"] = create_fresh_test_user()
         _test_session["created"] = True
-        print(f"\n✅ Test session created with email: {_test_session['user']['email']}")
+        print(f"\n[SUCCESS] Test session created with email: {_test_session['user']['email']}")
     
     return _test_session["user"]
 
@@ -109,7 +109,7 @@ def cleanup_test_session():
     global _test_session
     _test_session["user"] = None
     _test_session["created"] = False
-    print("\n✅ Test session cleaned up")
+    print("\n[SUCCESS] Test session cleaned up")
 
 def is_session_created():
     """Check if test session is already created"""
